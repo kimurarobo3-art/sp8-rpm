@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SP-8 RPM">
+<meta name="theme-color" content="#1a1a2e">
+<title>SP-8 RPM 計算機</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+  :root {
+    --bg: #0f0f1a;
+    --surface: #1a1a2e;
+    --surface2: #22223a;
+    --accent: #e8c547;
+    --accent2: #f0a500;
+    --danger: #e05252;
+    --success: #52c97a;
+    --text: #f0f0f5;
+    --muted: #8888aa;
+    --border: rgba(255,255,255,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    overscroll-behavior: none;
+  }
+
+  .app {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+  }
+
+  header {
+    padding: 20px 24px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .section-label {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .input-group {
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .input-row {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 68px;
+    gap: 12px;
+  }
+
+  .input-row + .input-row {
+    border-top: 1px solid var(--border);
+  }
+
+  .input-icon {
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    width: 28px;
+    flex-shrink: 0;
+  }
+
+  .input-row input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-size: 22px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    color: var(--text);
+    width: 100%;
+  }
+
+  .input-row input::placeholder { color: var(--muted); }
+
+  .input-unit {
+    font-size: 16px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .presets-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .presets-grid.speed-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .preset {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 6px;
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .preset:active { transform: scale(0.94); background: var(--surface2); }
+  .preset.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #1a1a00;
+    font-weight: 500;
+  }
+
+  .result-block {
+    background: var(--surface);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    padding: 28px 24px;
+    text-align: center;
+    transition: border-color 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-block::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent);
+    transition: background 0.3s;
+  }
+
+  .result-block.danger::before { background: var(--danger); }
+  .result-block.success::before { background: var(--success); }
+
+  .result-label {
+    font-size: 15px;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .result-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 56px;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    transition: color 0.3s;
+  }
+
+  .result-value.danger { color: var(--danger); }
+  .result-value.success { color: var(--success); }
+
+  .result-unit-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 16px;
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .status-badge.ok { background: rgba(82,201,122,0.15); color: var(--success); }
+  .status-badge.ng { background: rgba(224,82,82,0.15); color: var(--danger); }
+  .status-badge.idle { background: rgba(136,136,170,0.12); color: var(--muted); }
+
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  .formula-box {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+    text-align: left;
+    display: none;
+  }
+
+  .range-bar {
+    margin-top: 16px;
+    display: none;
+  }
+
+  .range-track {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .range-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s, background 0.3s;
+  }
+
+  .range-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  footer {
+    padding: 12px 20px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0));
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.08em;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="header-title">TKW / SP-8</div>
+    <h1>RPM 計算機</h1>
+  </header>
+
+  <div class="content">
+
+    <div>
+      <div class="section-label">ローラ径</div>
+      <div class="input-group">
+        <div class="input-row">
+          <span class="input-icon">φ</span>
+          <input type="number" id="diameter" inputmode="decimal" placeholder="185" min="1" step="1">
+          <span class="input-unit">mm</span>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <div class="presets-grid" id="dia-presets">
+          <button class="preset" onclick="setDia(148)">148φ</button>
+          <button class="preset" onclick="setDia(163)">163φ</button>
+          <button class="preset" onclick="setDia(185)">185φ</button>
+          <button class="preset" onclick="setDia(370)">370φ</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">校正速度</div>
+      <div class="input-group">
+        <div class="input-row">
+          <span class="input-icon">V</span>
+          <input type="number" id="speed" inputmode="decimal" placeholder="60" min="1" step="0.1">
+          <span class="input-unit">km/h</span>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <div class="presets-grid speed-grid" id="spd-presets">
+          <button class="preset" onclick="setSpeed(40)">40</button>
+          <button class="preset" onclick="setSpeed(60)">60</button>
+          <button class="preset" onclick="setSpeed(80)">80</button>
+          <button class="preset" onclick="setSpeed(100)">100</button>
+          <button class="preset" onclick="setSpeed(120)">120</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">計算結果</div>
+      <div class="result-block" id="result-block">
+        <div class="result-label">必要な回転数</div>
+        <div class="result-value" id="rpm-val">—</div>
+        <div class="result-unit-label">rpm</div>
+        <div class="status-badge idle" id="status-badge">
+          <span class="dot"></span>
+          <span id="status-text">数値を入力してください</span>
+        </div>
+        <div class="range-bar" id="range-bar">
+          <div class="range-track">
+            <div class="range-fill" id="range-fill"></div>
+          </div>
+          <div class="range-labels">
+            <span>300 rpm</span>
+            <span>2,200 rpm</span>
+          </div>
+        </div>
+        <div class="formula-box" id="formula-box"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>スピードメータテスタ校正器 SP-8 専用 · 滝本計器製作所</footer>
+</div>
+
+<script>
+var MIN=300, MAX=2200;
+var selDia=null, selSpd=null;
+
+function setDia(v){
+  document.getElementById('diameter').value=v;
+  selDia=v;
+  document.querySelectorAll('#dia-presets .preset').forEach(function(b){
+    b.classList.toggle('active', parseInt(b.textContent)===v);
+  });
+  tryCalc();
+}
+
+function setSpeed(v){
+  document.getElementById('speed').value=v;
+  selSpd=v;
+  document.querySelectorAll('#spd-presets .preset').forEach(function(b){
+    b.classList.toggle('active', parseInt(b.textContent)===v);
+  });
+  tryCalc();
+}
+
+function tryCalc(){
+  var d=parseFloat(document.getElementById('diameter').value);
+  var s=parseFloat(document.getElementById('speed').value);
+  var block=document.getElementById('result-block');
+  var valEl=document.getElementById('rpm-val');
+  var badge=document.getElementById('status-badge');
+  var statusTxt=document.getElementById('status-text');
+  var formula=document.getElementById('formula-box');
+  var rangeBar=document.getElementById('range-bar');
+  var rangeFill=document.getElementById('range-fill');
+
+  if(!d||!s||d<=0||s<=0){
+    valEl.textContent='—';
+    valEl.className='result-value';
+    block.className='result-block';
+    badge.className='status-badge idle';
+    statusTxt.textContent='数値を入力してください';
+    formula.style.display='none';
+    rangeBar.style.display='none';
+    return;
+  }
+
+  var rpm=s*1000000/(d*3.1415*60);
+  var ok=rpm>=MIN&&rpm<=MAX;
+
+  valEl.textContent=rpm.toFixed(2);
+  valEl.className='result-value '+(ok?'success':'danger');
+  block.className='result-block '+(ok?'success':'danger');
+  badge.className='status-badge '+(ok?'ok':'ng');
+  statusTxt.textContent=ok?'SP-8 測定範囲内':'SP-8 測定範囲外 (300〜2,200 rpm)';
+
+  var pct=Math.min(100,Math.max(0,(rpm-MIN)/(MAX-MIN)*100));
+  rangeFill.style.width=pct+'%';
+  rangeFill.style.background=ok?'var(--success)':'var(--danger)';
+  rangeBar.style.display='block';
+
+  formula.textContent=s+' × 1,000,000 ÷ ('+d+' × 3.1415 × 60)\n= '+rpm.toFixed(2)+' rpm';
+  formula.style.display='block';
+}
+
+document.getElementById('diameter').addEventListener('input',function(){
+  selDia=null;
+  document.querySelectorAll('#dia-presets .preset').forEach(function(b){b.classList.remove('active')});
+  tryCalc();
+});
+document.getElementById('speed').addEventListener('input',function(){
+  selSpd=null;
+  document.querySelectorAll('#spd-presets .preset').forEach(function(b){b.classList.remove('active')});
+  tryCalc();
+});
+</script>
+</body>
+</html>
