@@ -179,7 +179,17 @@
     font-weight: 500;
   }
 
-  .preset:active { transform: scale(0.92); background: var(--surface2); }
+  .preset-sub {
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'Noto Sans JP', sans-serif;
+    margin-top: 3px;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .preset.active .preset-sub { color: #554400; }
   .preset.active {
     background: var(--accent);
     border-color: var(--accent);
@@ -429,8 +439,8 @@
       <div class="presets-grid" id="c-set-presets">
         <button class="preset" onclick="cSetDia(148)">148φ</button>
         <button class="preset" onclick="cSetDia(163)">163φ</button>
-        <button class="preset" onclick="cSetDia(185)">185φ</button>
-        <button class="preset" onclick="cSetDia(190.7)">190.7φ</button>
+        <button class="preset" onclick="cSetDia(185)">185φ<br><span class="preset-sub">溝ローラ</span></button>
+        <button class="preset" onclick="cSetDia(190.7)">190.7φ<br><span class="preset-sub">エンボス</span></button>
         <button class="preset" onclick="cSetDia(370)">370φ</button>
       </div>
     </div>
@@ -448,8 +458,8 @@
       <div class="presets-grid" id="c-real-presets">
         <button class="preset" onclick="cSetReal(148)">148φ</button>
         <button class="preset" onclick="cSetReal(163)">163φ</button>
-        <button class="preset" onclick="cSetReal(185)">185φ</button>
-        <button class="preset" onclick="cSetReal(190.7)">190.7φ</button>
+        <button class="preset" onclick="cSetReal(185)">185φ<br><span class="preset-sub">溝ローラ</span></button>
+        <button class="preset" onclick="cSetReal(190.7)">190.7φ<br><span class="preset-sub">エンボス</span></button>
         <button class="preset" onclick="cSetReal(370)">370φ</button>
       </div>
     </div>
