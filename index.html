@@ -655,6 +655,10 @@ document.getElementById('c-display').addEventListener('input',function(){
   document.querySelectorAll('#c-spd-presets .preset').forEach(function(b){b.classList.remove('active')});
   cCalc();
 });
+
+/* 初期値：設定径185φ・実測径190.7φ */
+cSetDia(185);
+cSetReal(190.7);
 </script>
 </body>
 </html>
